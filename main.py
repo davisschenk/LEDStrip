@@ -1,9 +1,8 @@
 from strip import TestStrip
 import time
-from animations import meteor_rain
+from animations import snake
 
 
-s = TestStrip(100, auto_write=False)
-while True:
-    meteor_rain(s, (0xff, 0xff, 0xff), 10, 64)
+s = TestStrip(50, auto_write=False)
 
+snake(s, (0, 255, 0), (255, 0, 0), 10)

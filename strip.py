@@ -36,7 +36,6 @@ class BaseStrip(ABC):
         self.led_count = led_count
         self.auto_write = auto_write
 
-        self._state = [(0, 0, 0) for i in range(led_count)]
 
     @abstractmethod
     def get_pixel(self, index: Union[int, slice]) -> ColorTuple:
@@ -95,10 +94,9 @@ class TestStrip(BaseStrip):
         self.fig.canvas.flush_events()
 
     def get_pixel(self, index: Union[int, slice]) -> ColorTuple:
-        return self._state[index]
+        return self.image_arr[0, index]
 
     def set_pixel(self, index: int, color: ColorTuple):
-        self._state[index] = color
         self.image_arr[0, index] = color
 
         if self.auto_write:
@@ -114,7 +112,6 @@ class TestStrip(BaseStrip):
 
     def fill(self, color: ColorTuple):
         for pixel in range(self.led_count):
-            self._state[pixel] = color
             self.image_arr[0, pixel] = color
 
         if self.auto_write:
@@ -142,15 +139,15 @@ class NeopixelStrip(BaseStrip):
     """
     def __init__(self, led_count: int, board_type, auto_write: bool = True, **kwargs):
         super().__init__(led_count)
+
         self.led_count = led_count
-        self.neopixel = neopixel.Neopixel(board_type, led_count, auto_write=auto_write, **kwargs)
+        self.neopixel = neopixel.NeoPixel(board_type, led_count, auto_write=auto_write, **kwargs)
 
     def set_pixel(self, index: int, color: ColorTuple):
         self.neopixel[index] = color
-        self._state = color
 
     def get_pixel(self, index: Union[int, slice]) -> ColorTuple:
-        return self._state[index]
+        return self.neopixel[index]
 
     def set_pixel_slice(self, pixels: slice, color: ColorTuple, delay=0):
         for pixel in range(pixels.start, pixels.stop, pixels.step):
