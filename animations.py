@@ -95,6 +95,75 @@ def meteor_rain(strip: BaseStrip, color: ColorTuple, size: int, decay: int, rand
         time.sleep(delay/1000)
 
 
+def alternating(strip: BaseStrip, color_one: ColorTuple, color_two: ColorTuple, size: int, delay: int = 100):
+    for j in range(2):
+        for i in range(strip.led_count):
+            if i % size*2 < size:
+                strip[i] = color_one
+            else:
+                strip[i] = color_two
+
+        color_one, color_two = color_two, color_one
+
+        strip.show()
+        time.sleep(delay/1000)
+
+
+def random_fade(strip: BaseStrip, color: ColorTuple, fade_value: int):
+    for i in range(strip.led_count):
+        if random.random() <= 0.25:
+            strip[i] = color
+        else:
+            fade_to_black(strip, i, fade_value)
+
+
+def snake(strip: BaseStrip, snake_color: ColorTuple, food_color: ColorTuple, snake_speed: int):
+    def generate_food():
+        index = random.randint(0, strip.led_count-1)
+
+        while index in range(snake_head - snake_length, snake_head):
+            index = random.randint(0, strip.led_count-1)
+
+        return index
+
+    def draw_snake():
+        for i in range(snake_head - snake_length, snake_head):
+            if i in range(0, strip.led_count):
+                strip[i] = snake_color
+
+        strip.show()
+
+    strip.fill((0, 0, 0))
+    snake_length = 3
+    snake_head = 0
+    food_index = generate_food()
+
+    strip[food_index] = food_color
+
+    while True:
+        if snake_head - snake_length - 1 in range(0, strip.led_count):
+            strip[snake_head - snake_length - 1] = (0, 0, 0)
+
+        draw_snake()
+
+        if snake_head == food_index:
+            food_index = generate_food()
+            strip[food_index] = food_color
+            snake_length += 1
+
+        snake_head += 1
+
+        if snake_head - snake_length - 1 > strip.led_count:
+            snake_head = 0
+
+        if snake_length >= strip.led_count-2:
+            snake_length = 3
+            snake_head = 0
+            strobe(strip, snake_color, 4, delay=400)
+
+
+
+
 
 
 
