@@ -5,15 +5,15 @@ import warnings
 try:
     from matplotlib import pyplot as plt
     import numpy as np
+    testing = True
 except ImportError:
-    warnings.warn("Testing is not supported on this device")
-
+    testing = False
 try:
     import board
     import neopixel
+    use_board = True
 except (ImportError, NotImplementedError):
-    warnings.warn("Neopixel is not supported on this device")
-
+    use_board = False
 
 ColorTuple = tuple[int, int, int]
 
@@ -80,6 +80,9 @@ class TestStrip(BaseStrip):
 
     def __init__(self, led_count: int, auto_write: bool = True):
         super().__init__(led_count)
+        if not testing:
+            raise NotImplementedError("TestStrip can not be used without matplotlib or numpy")
+
         self.auto_write = auto_write
         self.image_arr = np.zeros((1, led_count, 3), dtype=np.uint8)
 
@@ -128,7 +131,7 @@ class NeopixelStrip(BaseStrip):
     led_count: int
         The number of leds in the strip
 
-    board_type
+    pin: Pin
         The board which is passed to Neopixel
 
     auto_write: bool
@@ -137,11 +140,13 @@ class NeopixelStrip(BaseStrip):
     kwargs:
         Kwargs are passed to neopixel.Neopixel
     """
-    def __init__(self, led_count: int, board_type, auto_write: bool = True, **kwargs):
+    def __init__(self, led_count: int, pin, auto_write: bool = True, **kwargs):
         super().__init__(led_count)
+        if not use_board:
+            raise NotImplementedError("NeoPixel cannot be used on this device")
 
         self.led_count = led_count
-        self.neopixel = neopixel.NeoPixel(board_type, led_count, auto_write=auto_write, **kwargs)
+        self.neopixel = neopixel.NeoPixel(pin, led_count, auto_write=auto_write, **kwargs)
 
     def set_pixel(self, index: int, color: ColorTuple):
         self.neopixel[index] = color

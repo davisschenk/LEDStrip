@@ -1,6 +1,6 @@
 import time
 from strip import BaseStrip, ColorTuple
-from color import calculate_color_percent, wheel
+from color import calculate_color_percent, wheel, hsv2rgb, antipodal_index
 import itertools
 import math
 import random
@@ -69,7 +69,7 @@ def rainbow_cycle(strip: BaseStrip, delay: int = 20):
         time.sleep(delay/1000)
 
 
-def fade_to_black(strip: BaseStrip, index, value):
+def fade_to_black(strip: BaseStrip, index: int, value: int):
     old_r, old_g, old_b = strip[index]
 
     r = 0 if old_r <= 10 else int(old_r - (old_r * value/256))
@@ -109,12 +109,12 @@ def alternating(strip: BaseStrip, color_one: ColorTuple, color_two: ColorTuple, 
         time.sleep(delay/1000)
 
 
-def random_fade(strip: BaseStrip, color: ColorTuple, fade_value: int):
+def improved_alternating(strip: BaseStrip, colors: list[ColorTuple], size: int, offset: int = 0, delay: int = 50):
     for i in range(strip.led_count):
-        if random.random() <= 0.25:
-            strip[i] = color
-        else:
-            fade_to_black(strip, i, fade_value)
+        strip[i] = colors[(i + offset) % len(colors)]
+
+    strip.show()
+    time.sleep(delay/1000)
 
 
 def snake(strip: BaseStrip, snake_color: ColorTuple, food_color: ColorTuple, snake_speed: int):
@@ -162,11 +162,34 @@ def snake(strip: BaseStrip, snake_color: ColorTuple, food_color: ColorTuple, sna
             strobe(strip, snake_color, 4, delay=400)
 
 
+def hsv_rainbow(strip: BaseStrip, delay: int):
+    for i in range(1, 360):
+        r, g, b = hsv2rgb(i / 360, 1, 1)
+        strip.fill((r, g, b))
+        strip.show()
+
+        time.sleep(delay / 1000)
 
 
+def random_burst(strip: BaseStrip, delay: int):
+    index = random.randint(0, strip.led_count - 1)
+    hue = random.randint(0, 359)
+
+    r, g, b = hsv2rgb(hue / 360, 1, 1)
+    strip[index] = (r, g, b)
+    strip.show()
+    time.sleep(delay / 1000)
 
 
+def police_lights(strip: BaseStrip, delay: int):
+    for i in range(strip.led_count):
+        strip[i] = (255, 0, 0)
+        strip[strip.led_count - 1 - i] = (0, 0, 255)
+        strip.show()
+        time.sleep(delay / 1000)
 
+
+# SORTING VISUALIZATION
 
 
 

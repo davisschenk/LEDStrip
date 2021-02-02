@@ -1,8 +1,8 @@
 from strip import TestStrip
 import time
-from animations import snake
+from animations import *
 
+s = TestStrip(30, auto_write=False)
 
-s = TestStrip(50, auto_write=False)
-
-snake(s, (0, 255, 0), (255, 0, 0), 10)
+while True:
+    police_lights(s, 20)
